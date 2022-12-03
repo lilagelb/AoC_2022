@@ -21,7 +21,7 @@ impl Day for Day2 {
             })
             .collect::<Vec<Game>>();
 
-        let mut part_1_score = games_1.iter()
+        let part_1_score = games_1.iter()
             .map(|game| game.score())
             .sum();
 
