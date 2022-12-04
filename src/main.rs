@@ -1,9 +1,8 @@
 use aoc_2022::day::Day;
-use aoc_2022::day1::Day1;
-use aoc_2022::day2::Day2;
-use aoc_2022::day3::Day3;
+use aoc_2022::day4::Day4;
+
 
 fn main() {
-    let day = Day3::new();
+    let day = Day4::new();
     println!("{}", day.run());
 }

@@ -1,6 +1,5 @@
 use std::fmt::{Display, Formatter};
 use std::fs;
-use std::vec::IntoIter;
 
 pub trait Day {
     type TypePart1: Display;

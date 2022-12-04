@@ -1,4 +1,3 @@
-use std::fs;
 use crate::day::{Answer, Day};
 use crate::day2::RockPaperScissors::{Rock, Paper, Scissors};
 
@@ -28,13 +27,13 @@ impl Day for Day2 {
         let games_2 = input.iter().map(|game| {
                 let opponent = RockPaperScissors::from(game[0]);
                 let me = match game[1] {
-                    "X" => match opponent { // lose
+                    "X" => match opponent {     // lose
                         Rock => Scissors,
                         Scissors => Paper,
                         Paper => Rock,
                     },
-                    "Y" => opponent,    // draw
-                    "Z" => match opponent {
+                    "Y" => opponent,            // draw
+                    "Z" => match opponent {     // win
                         Rock => Paper,
                         Paper => Scissors,
                         Scissors => Rock,
