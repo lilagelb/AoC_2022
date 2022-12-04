@@ -26,8 +26,3 @@ impl Day for Day1 {
         Answer::new(Some(carried_calories[0]), Some(carried_calories[0..3].iter().sum::<i32>()))
     }
 }
-impl Day1 {
-    pub fn new() -> Day1 {
-        Day1
-    }
-}

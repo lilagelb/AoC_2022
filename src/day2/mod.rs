@@ -53,11 +53,6 @@ impl Day for Day2 {
         Answer::new(Some(part_1_score), Some(part_2_score))
     }
 }
-impl Day2 {
-    pub fn new() -> Day2 {
-        Day2
-    }
-}
 
 #[derive(Copy, Clone, PartialEq)]
 enum RockPaperScissors {

@@ -39,8 +39,3 @@ impl Day for Day4 {
         Answer::new(Some(part_1), Some(part_2))
     }
 }
-impl Day4 {
-    pub fn new() -> Day4 {
-        Day4
-    }
-}

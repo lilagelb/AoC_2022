@@ -39,10 +39,6 @@ impl Day for Day3 {
     }
 }
 impl Day3 {
-    pub fn new() -> Day3 {
-        Day3
-    }
-
     fn letter_to_priority(letter: &str) -> u32 {
         if letter.to_ascii_lowercase() == letter {
             return letter.as_bytes()[0] as u32 - 96
