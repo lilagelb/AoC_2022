@@ -25,7 +25,7 @@ def main():
     with open(target_directory + "mod.rs", "w") as f:
         f.write(f"""use crate::day::{{Answer, Day}};
 
-struct Day{day_number};
+pub struct Day{day_number};
 impl Day for Day{day_number} {{
     type TypePart1 = u32;
     type TypePart2 = u32;
