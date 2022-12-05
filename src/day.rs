@@ -8,20 +8,12 @@ pub trait Day {
     fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2>;
 
     fn get_input_for_day_by_line(&self, day: u32) -> Vec<String> {
-        let input = fs::read_to_string(format!("src/day{}/input.txt", day))
+        fs::read_to_string(format!("src/day{}/input.txt", day))
             .expect(&format!("failed to get input for day {}", day))
+            .trim_end()
             .split("\n")
             .map(|elem| elem.to_string())
-            .collect();
-        self.strip_empty_off_list(input)
-    }
-
-    fn strip_empty_off_list(&self, list: Vec<String>) -> Vec<String> {
-        if list.last().expect("list is empty").is_empty() {
-            list[0..list.len()-1].to_vec()
-        } else {
-            list
-        }
+            .collect()
     }
 }
 
