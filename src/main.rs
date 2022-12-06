@@ -1,8 +1,7 @@
 use aoc_2022::day::Day;
-use aoc_2022::day5::Day5;
+use aoc_2022::day6::Day6;
 
 
 fn main() {
-    let day = Day5;
-    println!("{}", day.run());
+    println!("{}", Day6.run());
 }
