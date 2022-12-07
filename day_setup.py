@@ -30,12 +30,18 @@ impl Day for Day{day_number} {{
     type TypePart1 = u32;
     type TypePart2 = u32;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2> {{
-        let input = self.get_input_for_day_by_line(5);
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {{
+        let input = self.get_input_for_day_by_line({day_number});
 
         Answer::new(None, None)
     }}
-}}""")
+}}
+impl Day{day_number} {{
+    pub fn new() -> Day{day_number} {{
+        Day{day_number}
+    }}
+}}
+""")
 
     f = open(target_directory + "input.txt", "w")
     f.close()
