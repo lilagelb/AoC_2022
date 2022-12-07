@@ -7,7 +7,7 @@ impl Day for Day6 {
     type TypePart1 = usize;
     type TypePart2 = usize;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2> {
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {
         let input = fs::read_to_string("src/day6/input.txt").unwrap();
         let input = input.as_bytes();
 

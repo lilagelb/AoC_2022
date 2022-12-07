@@ -5,7 +5,7 @@ pub trait Day {
     type TypePart1: Display;
     type TypePart2: Display;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2>;
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2>;
 
     fn get_input_for_day_by_line(&self, day: u32) -> Vec<String> {
         fs::read_to_string(format!("src/day{}/input.txt", day))

@@ -7,7 +7,7 @@ impl Day for Day5 {
     type TypePart1 = String;
     type TypePart2 = String;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2> {
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {
         let input = fs::read_to_string("src/day5/input.txt").unwrap()
             .split("\n\n")
             .map(|elem| elem.to_string())

@@ -6,7 +6,7 @@ impl Day for Day2 {
     type TypePart1 = i32;
     type TypePart2 = i32;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2> {
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {
         let input = self.get_input_for_day_by_line(2);
         let input = input.iter()
             .map(|elem| elem.split(" ").collect::<Vec<&str>>())

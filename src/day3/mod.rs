@@ -6,7 +6,7 @@ impl Day for Day3 {
     type TypePart1 = u32;
     type TypePart2 = u32;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2> {
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {
         let input = self.get_input_for_day_by_line(3);
 
         let mut part_1 = 0u32;

@@ -6,7 +6,7 @@ impl Day for Day4 {
     type TypePart1 = u32;
     type TypePart2 = u32;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2> {
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {
         let input = self.get_input_for_day_by_line(4);
 
         let pair_extraction_re = Regex::new(

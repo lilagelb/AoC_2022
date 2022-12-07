@@ -6,7 +6,7 @@ impl Day for Day1 {
     type TypePart1 = i32;
     type TypePart2 = i32;
 
-    fn run(&self) -> Answer<Self::TypePart1, Self::TypePart2> {
+    fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {
         let input = fs::read_to_string("src/day1/input.txt")
             .expect("error reading day 1 input")
             .split("\n\n")
