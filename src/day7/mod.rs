@@ -5,10 +5,8 @@ use crate::day::{Answer, Day};
 
 
 pub struct Day7 {
-    current_directory: DirectoryPtr,
+    filesystem: Filesystem,
     command_parse_re: Regex,
-    filesystem_head: DirectoryPtr,
-    directories: Vec<DirectoryPtr>,
 }
 impl Day for Day7{
     type TypePart1 = u32;
@@ -27,27 +25,20 @@ impl Day for Day7{
                 if line.starts_with("d") {  // directory
                     let captures = ls_output_dir_re.captures(line).unwrap();
                     let directory_name = captures.name("name").unwrap().as_str();
-                    let directory = Rc::new(RefCell::new(
-                        Directory::new(directory_name, Some(Rc::clone(&self.current_directory)))
-                    ));
-                    self.current_directory.borrow_mut().subdirectories.push(Rc::clone(&directory));
-                    self.directories.push(Rc::clone(&directory));
+                    self.filesystem.add_directory(directory_name.to_string());
                 } else {    // file
                     let captures = ls_output_file_re.captures(line).unwrap();
                     let filename = captures.name("name").unwrap().as_str().to_string();
                     let file_size = captures.name("size").unwrap().as_str().parse::<u32>().unwrap();
-                    self.current_directory.borrow_mut().contents.push(File {
-                        name: filename,
-                        size: file_size,
-                    })
+                    self.filesystem.add_file(filename, file_size);
                 }
             }
         }
 
-        let size_required = self.filesystem_head.borrow().calculate_size() - 40000000;
+        let size_required = self.filesystem.head.borrow().calculate_size() - 40000000;
         let mut part_1 = 0u32;
         let mut part_2 = 999999999u32;
-        for directory in &self.directories {
+        for directory in &self.filesystem.directories {
             let size = directory.borrow().calculate_size();
             if size <= 100000 {
                 part_1 += size;
@@ -62,14 +53,9 @@ impl Day for Day7{
 }
 impl Day7 {
     pub fn new() -> Day7 {
-        let starting_directory = Rc::new(RefCell::new(
-            Directory::new("/", None)
-        ));
         Day7 {
-            current_directory: Rc::clone(&starting_directory),
+            filesystem: Filesystem::new(),
             command_parse_re: Regex::new(r"^\$ (?P<command>\w+) ?(?P<argument>[\w/.]*)").unwrap(),
-            filesystem_head: Rc::clone(&starting_directory),
-            directories: vec![Rc::clone(&starting_directory)],
         }
     }
     fn parse_command(&mut self, command: &str) {
@@ -77,19 +63,61 @@ impl Day7 {
         let command = parts.name("command").unwrap().as_str();
         if command == "cd" {
             let argument = parts.name("argument").unwrap().as_str();
-            if argument == ".." {
-                //self.current_directory = self.current_directory.borrow().get_parent().unwrap();
-                let parent = self.current_directory.borrow().get_parent().unwrap();
-                self.current_directory = parent;
-            } else if argument == "/" {
-                self.current_directory = Rc::clone(&self.filesystem_head);
-            } else {
-                let subdirectory = self.current_directory.borrow()
-                    .get_subdirectory(argument).unwrap();
-                self.current_directory = subdirectory;
-            }
+            self.filesystem.change_directory(argument);
         } else if command == "ls" {
             // do nothing - the parser in Day7::run() will handle this input
+        }
+    }
+}
+
+struct Filesystem {
+    head: DirectoryPtr,
+    current_directory: DirectoryPtr,
+    directories: Vec<DirectoryPtr>,
+}
+impl Filesystem {
+    fn new() -> Filesystem {
+        let head = Rc::new(RefCell::new(Directory {
+            name: "/".to_string(),
+            parent: None,
+            subdirectories: Vec::new(),
+            contents: Vec::new(),
+        }));
+        Filesystem {
+            head: Rc::clone(&head),
+            current_directory: Rc::clone(&head),
+            directories: vec![Rc::clone(&head)],
+        }
+    }
+
+    fn add_directory(&mut self, name: String) {
+        let new_directory = Rc::new(RefCell::new(Directory {
+            name,
+            parent: Some(Rc::clone(&self.current_directory)),
+            subdirectories: Vec::new(),
+            contents: Vec::new(),
+        }));
+        self.current_directory.borrow_mut().subdirectories.push(Rc::clone(&new_directory));
+        self.directories.push(Rc::clone(&new_directory));
+    }
+
+    fn add_file(&mut self, name: String, size: u32) {
+        let file = File {
+            name, size
+        };
+        self.current_directory.borrow_mut().contents.push(file);
+    }
+
+    fn change_directory(&mut self, directory: &str) {
+        if directory == ".." {
+            let parent = self.current_directory.borrow().get_parent().unwrap();
+            self.current_directory = parent;
+        } else if directory == "/" {
+            self.current_directory = Rc::clone(&self.head);
+        } else {
+            let subdirectory = self.current_directory.borrow()
+                .get_subdirectory(directory).unwrap();
+            self.current_directory = subdirectory;
         }
     }
 }
