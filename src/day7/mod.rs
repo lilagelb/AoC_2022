@@ -123,6 +123,7 @@ impl Filesystem {
 }
 
 struct File {
+    #[allow(dead_code)]
     name: String,
     size: u32,
 }
@@ -133,14 +134,6 @@ struct Directory {
     contents: Vec<File>,
 }
 impl Directory {
-    fn new(name: &str, parent: Option<DirectoryPtr>) -> Directory {
-        Directory {
-            name: name.to_string(),
-            parent,
-            subdirectories: Vec::new(),
-            contents: Vec::new(),
-        }
-    }
     fn get_parent(&self) -> Option<DirectoryPtr> {
         match &self.parent {
             Some(directory) => Some(Rc::clone(directory)),
