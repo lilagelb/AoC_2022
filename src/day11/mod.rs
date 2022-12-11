@@ -26,12 +26,11 @@ impl Day for Day11 {
                 }
             }
         }
-        let mut items_inspected_part_1: Vec<u64> = monkeys.iter()
+        let mut items_inspected: Vec<u64> = monkeys.iter()
             .map(|monkey| monkey.items_inspected)
             .collect();
-        items_inspected_part_1.sort();
-        items_inspected_part_1.reverse();
-        let part_1 = items_inspected_part_1[0] * items_inspected_part_1[1];
+        items_inspected.sort();
+        let part_1 = items_inspected.iter().rev().take(2).product();
 
 
         let mut monkeys = create_monkeys(&input, true);
@@ -53,8 +52,7 @@ impl Day for Day11 {
             .map(|monkey| monkey.items_inspected)
             .collect();
         items_inspected.sort();
-        items_inspected.reverse();
-        let part_2 = items_inspected[0] * items_inspected[1];
+        let part_2 = items_inspected.iter().rev().take(2).product();
 
         Answer::new(Some(part_1), Some(part_2))
     }
@@ -67,29 +65,24 @@ impl Day11 {
 
 fn create_monkeys(text: &str, part_2: bool) -> Vec<Monkey> {
     let mut monkeys: Vec<Monkey> = Vec::new();
+    let mut worry_level_modulus = 1u64;
+
     for monkey in text.split("\n\n") {
-        monkeys.push(Monkey::from(monkey));
-    }
-    let mut factors_to_maintain = Vec::new();
-    if part_2 {
-        factors_to_maintain = monkeys.iter()
-            .map(|monkey| monkey.test_denominator)
-            .collect();
-    }
-    else {
-        // this essentially disables the modulus arithmetic
-        factors_to_maintain = vec![0xffffffffffffffffu64];
+        let monkey = Monkey::from(monkey);
+        worry_level_modulus *= monkey.test_denominator;
+        monkeys.push(monkey);
     }
     for monkey in &mut monkeys {
-        monkey.set_worry_level_factors(&factors_to_maintain);
+        monkey.set_worry_level_modulus(worry_level_modulus);
     }
 
     monkeys
 }
 
 struct Monkey {
-    items: Vec<WorryLevel>,
-    operation: Box<dyn Fn(&mut WorryLevel)>,
+    items: Vec<u64>,
+    operation: Box<dyn Fn(u64) -> u64>,
+    worry_level_modulus: u64,
     test_denominator: u64,
     monkey_if_test_true: usize,
     monkey_if_test_false: usize,
@@ -103,7 +96,7 @@ impl Monkey {
         let captures = RE.captures(text).unwrap();
         let items = captures.name("starting_items").unwrap().as_str()
             .split(", ")
-            .map(|elem| WorryLevel::from(elem.parse().unwrap()))
+            .map(|elem| elem.parse().unwrap())
             .collect();
         let operation_operand = captures.name("operation_operand").unwrap().as_str();
         let operation_rhs = captures.name("operation_rhs").unwrap().as_str();
@@ -111,113 +104,53 @@ impl Monkey {
         let monkey_if_test_true: usize = captures.name("true_monkey").unwrap().as_str().parse().unwrap();
         let monkey_if_test_false: usize = captures.name("false_monkey").unwrap().as_str().parse().unwrap();
 
-        let operation: Box<dyn Fn(&mut WorryLevel)> = if operation_rhs == "old" {
-            Box::new(|old| old.update_square())
+        let operation: Box<dyn Fn(u64) -> u64> = if operation_rhs == "old" {
+            Box::new(|old_level| old_level * old_level)
         } else {
             let rhs = operation_rhs.parse::<u64>().unwrap();
             if operation_operand == "+" {
-                Box::new(move |old_level| {
-                    for (factor, remainder) in old_level.factors_and_remainders.iter_mut() {
-                        *remainder = (*remainder + rhs) % *factor;
-                    }}
-                )
+                Box::new(move |old_level| old_level + rhs)
             } else {
-                Box::new(move |old| old.update_multiply(rhs))
+                Box::new(move |old_level| old_level * rhs)
             }
         };
 
         Monkey {
             items,
             operation,
+            worry_level_modulus: 0,
             test_denominator,
             monkey_if_test_true,
             monkey_if_test_false,
             items_inspected: 0,
         }
     }
-    fn set_worry_level_factors(&mut self, factors: &Vec<u64>) {
-        for item in &mut self.items {
-            item.set_factors(factors)
-        }
+    fn set_worry_level_modulus(&mut self, modulus: u64) {
+        self.worry_level_modulus = modulus;
     }
 
-    fn process_item_part_1(&mut self, worry_level: WorryLevel) -> (usize, WorryLevel) {
+    fn process_item_part_1(&mut self, item: u64) -> (usize, u64) {
         self.items_inspected += 1;
 
-        let mut worry_level = worry_level;
-        (self.operation)(&mut worry_level);
-        worry_level.update_floor_divide(3);
+        let mut worry_level = (self.operation)(item).into();
+        worry_level /= 3;
 
-        if worry_level.factors_and_remainders[0].1 % self.test_denominator == 0 {
+        if worry_level % self.test_denominator == 0 {
             (self.monkey_if_test_true, worry_level)
         } else {
             (self.monkey_if_test_false, worry_level)
         }
     }
-    fn process_item_part_2(&mut self, worry_level: WorryLevel) -> (usize, WorryLevel) {
+    fn process_item_part_2(&mut self, item: u64) -> (usize, u64) {
         self.items_inspected += 1;
 
-        let mut worry_level = worry_level;
-        (self.operation)(&mut worry_level);
+        let mut worry_level = (self.operation)(item).into();
+        worry_level %= self.worry_level_modulus;
 
-        if worry_level.test_divisibilty(self.test_denominator) {
+        if worry_level % self.test_denominator == 0 {
             (self.monkey_if_test_true, worry_level)
         } else {
             (self.monkey_if_test_false, worry_level)
         }
-    }
-}
-
-struct WorryLevel {
-    factors_and_remainders: Vec<(u64, u64)>,
-    initial_value: u64,
-}
-impl WorryLevel {
-    fn from(value: u64) -> WorryLevel {
-        let mut worry_level = WorryLevel {
-            factors_and_remainders: Vec::new(),
-            initial_value: value,
-        };
-        worry_level
-    }
-    fn set_factors(&mut self, factors: &Vec<u64>) {
-        for factor in factors {
-            self.factors_and_remainders.push((*factor, self.initial_value % factor));
-        }
-    }
-
-    fn update_plus(&mut self, rhs: u64) {
-        for (factor, remainder) in self.factors_and_remainders.iter_mut() {
-            *remainder = (*remainder + rhs) % *factor;
-        }
-    }
-    fn update_multiply(&mut self, rhs: u64) {
-        for (factor, remainder) in self.factors_and_remainders.iter_mut() {
-            *remainder = (*remainder * rhs) % *factor;
-        }
-    }
-    fn update_square(&mut self) {
-        for (factor, remainder) in self.factors_and_remainders.iter_mut() {
-            *remainder = (*remainder * *remainder) % *factor;
-        }
-    }
-    fn update_floor_divide(&mut self, rhs: u64) {
-        // only used for part 1, so no modulus necessary
-        for (factor, remainder) in self.factors_and_remainders.iter_mut() {
-            *remainder = *remainder / rhs;
-        }
-    }
-
-    fn test_divisibilty(&self, rhs: u64) -> bool {
-        for (factor, remainder) in &self.factors_and_remainders {
-            if *factor == rhs {
-                if *remainder == 0 {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        panic!()
     }
 }
