@@ -1,7 +1,7 @@
 use aoc_2022::day::Day;
-use aoc_2022::day12::Day12;
+use aoc_2022::day13::Day13;
 
 fn main() {
-    let mut day = Day12::new();
+    let mut day = Day13::new();
     println!("{}", day.run());
 }
