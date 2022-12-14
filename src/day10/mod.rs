@@ -78,6 +78,7 @@ impl Cpu {
         self.current_instruction_cycles -= 1;
         if self.current_instruction_cycles == 0 {
             // dispatch the current instruction
+            #[allow(non_snake_case)]
             match self.instructions[self.program_counter] {
                 Instruction::Addx(V) => self.register_x += V,
                 Instruction::Noop => {},

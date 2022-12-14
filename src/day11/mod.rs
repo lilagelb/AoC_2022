@@ -11,7 +11,7 @@ impl Day for Day11 {
     fn run(&mut self) -> Answer<Self::TypePart1, Self::TypePart2> {
         let input = fs::read_to_string("src/day11/input.txt").unwrap();
 
-        let mut monkeys = create_monkeys(&input, false);
+        let mut monkeys = create_monkeys(&input);
 
         for _round in 0..20 {
             // Note: this has to be done with indexes so that monkeys can be mutably borrowed at the
@@ -33,7 +33,7 @@ impl Day for Day11 {
         let part_1 = items_inspected.iter().rev().take(2).product();
 
 
-        let mut monkeys = create_monkeys(&input, true);
+        let mut monkeys = create_monkeys(&input);
 
         for _round in 0..10000 {
             // Note: this has to be done with indexes so that monkeys can be mutably borrowed at the
@@ -63,7 +63,7 @@ impl Day11 {
     }
 }
 
-fn create_monkeys(text: &str, part_2: bool) -> Vec<Monkey> {
+fn create_monkeys(text: &str) -> Vec<Monkey> {
     let mut monkeys: Vec<Monkey> = Vec::new();
     let mut worry_level_modulus = 1u64;
 

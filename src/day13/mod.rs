@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 use std::fs;
-use std::slice::Iter;
 use crate::day::{Answer, Day};
 
 pub struct Day13;
